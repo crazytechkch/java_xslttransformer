@@ -34,6 +34,7 @@ import com.crazytech.swing.texteditor.DragDropTextEditor;
 import com.crazytech.swing.texteditor.TextEditor;
 import com.crazytech.xslt.XSLT;
 
+import co.crazytech.swing.bettertabbedpane.BetterTabbedPane;
 import co.crazytech.xslt.browser.BrowserPanel;
 
 import javax.swing.JSplitPane;
@@ -47,6 +48,7 @@ public class Main {
 	private LangMan lang;
 	private MyLangMan myLang;
 	private JTabbedPane tabPane;
+	private BetterTabbedPane btabPane;
 
 	/**
 	 * Launch the application.
@@ -57,7 +59,6 @@ public class Main {
 				try {
 					Main window = new Main();
 					window.mainframe.setVisible(true);
-					window.mainframe.setTitle("XSLT Transformer");
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
@@ -84,6 +85,7 @@ public class Main {
 		mainframe.getContentPane().setLayout(new BorderLayout(0, 0));
 		mainframe.setIconImage(Toolkit.getDefaultToolkit().getImage(Main.class.getResource("/res/logo.png")));
 		mainframe.setSize(1024, 768);
+		mainframe.setTitle(myLang.getString("appname"));
 		mainframe.setLocationRelativeTo(null);
 		
 		JMenuBar menuBar = new JMenuBar();
@@ -101,12 +103,14 @@ public class Main {
 		mntmLangZhS.addActionListener(mntmChangeLocaleListener("zh"));
 		mnLang.add(mntmLangZhS);
 		
+		btabPane = new BetterTabbedPane(new BrowserPanel());
+		/* deprecated
 		tabPane = new JTabbedPane(JTabbedPane.TOP);
 		tabPane.addTab("", new BrowserPanel());
 		tabPane.addTab("", new BrowserPanel());
 		tabPane.addTab("", new BrowserPanel());
-		
-		mainframe.getContentPane().add(tabPane, BorderLayout.CENTER);
+		*/
+		mainframe.getContentPane().add(btabPane, BorderLayout.CENTER);
 	}
 	
 	private ActionListener mntmChangeLocaleListener(final String locale) {
@@ -139,6 +143,10 @@ public class Main {
 	private void setUILang(Locale locale) {
 		LangMan lang = new LangMan(locale);
 		UIManager.put("FileChooser.openDialogTitleText",lang.getString("open"));
+	}
+
+	public LangMan getLang() {
+		return lang;
 	}
 	
 }

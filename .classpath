@@ -5,7 +5,8 @@
 	<classpathentry kind="lib" path="miglayout15-swing.jar" sourcepath="miglayout-src.zip"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="lib" path="forms-1.3.0.jar" sourcepath="forms-1.3.0-src.zip"/>
-	<classpathentry kind="lib" path="D:/workspace/libraries/ctcommons.jar"/>
 	<classpathentry kind="lib" path="D:/workspace/libraries/xswingx.jar"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/RSyntaxTextArea"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/CrazyTechCommons"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

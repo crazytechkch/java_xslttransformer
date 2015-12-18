@@ -16,9 +16,15 @@ import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
 import javax.xml.transform.TransformerException;
 
+import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
+import org.fife.ui.rsyntaxtextarea.SyntaxConstants;
+import org.fife.ui.rtextarea.RTextScrollPane;
+
 import com.crazytech.io.IOUtil;
 import com.crazytech.swing.browser.SimpleSwingBrowser;
+import com.crazytech.swing.texteditor.DragDropSyntaxEditor;
 import com.crazytech.swing.texteditor.DragDropTextEditor;
+import com.crazytech.swing.texteditor.SyntaxEditor;
 import com.crazytech.swing.texteditor.TextEditor;
 import com.crazytech.xslt.XSLT;
 
@@ -27,12 +33,12 @@ import res.locale.MyLangMan;
 
 public class BrowserPanel extends JPanel {
 	private SimpleSwingBrowser browser;
-	private TextEditor outputText;
+	private SyntaxEditor outputText;
 	private JTabbedPane tabPane;
 	private JButton btnTransform;
 	private JSplitPane splitPane;
 	private JPanel rightHost, _panel_1;
-	private DragDropTextEditor xmlText,xslText;
+	private DragDropSyntaxEditor xmlText,xslText;
 	private Locale locale;
 	private LangMan lang;
 	private MyLangMan myLang;
@@ -46,18 +52,22 @@ public class BrowserPanel extends JPanel {
 	}
 	
 	private void init() {
+		setLayout(new BorderLayout(0, 0));
+		
 		browser = new SimpleSwingBrowser(locale);
 		
-		outputText = new TextEditor(lang.getString("sourcecode"),locale);
-		
-		xmlText = new DragDropTextEditor("Drop XML Here",locale);
+		outputText = new SyntaxEditor(lang.getString("sourcecode"),locale);
+		outputText.getRtextArea().setSyntaxEditingStyle(RSyntaxTextArea.SYNTAX_STYLE_HTML);
+		xmlText = new DragDropSyntaxEditor("Drop XML Here",locale);
+		xmlText.getRtextArea().setSyntaxEditingStyle(SyntaxConstants.SYNTAX_STYLE_XML);
 		GridBagConstraints gbc_xmlScrollPane = new GridBagConstraints();
 		gbc_xmlScrollPane.insets = new Insets(0, 0, 5, 0);
 		gbc_xmlScrollPane.fill = GridBagConstraints.BOTH;
 		gbc_xmlScrollPane.gridx = 0;
 		gbc_xmlScrollPane.gridy = 0;
 		
-		xslText = new DragDropTextEditor("Drop XSL Here",locale);
+		xslText = new DragDropSyntaxEditor("Drop XSL Here",locale);
+		xslText.getRtextArea().setSyntaxEditingStyle(SyntaxConstants.SYNTAX_STYLE_XML);
 		GridBagConstraints gbc_xslScrollPane = new GridBagConstraints();
 		gbc_xslScrollPane.insets = new Insets(0, 0, 5, 0);
 		gbc_xslScrollPane.fill = GridBagConstraints.BOTH;
@@ -122,18 +132,18 @@ public class BrowserPanel extends JPanel {
 		rightPane.add(btnTransform, gbc_btnTransform);
 		
 		_panel_1 = new JPanel();
-		splitPane.setLeftComponent(_panel_1);
 		_panel_1.setLayout(new BorderLayout(0, 0));
 		
-		tabPane = new JTabbedPane(JTabbedPane.LEFT);
-		_panel_1.add(tabPane);
+		tabPane = new JTabbedPane(JTabbedPane.TOP);
 		tabPane.addTab("HTML", null, browser.getContentPane(), null);
 		
 		
 		JScrollPane outputPane = new JScrollPane();
 		tabPane.addTab(lang.getString("sourcecode"), null, outputPane, null);
 		outputPane.setViewportView(outputText);
-		add(splitPane);
+		_panel_1.add(tabPane);
+		splitPane.setLeftComponent(_panel_1);
+		add(splitPane,BorderLayout.CENTER);
 	}
 
 	public void changeLocale(String locale){

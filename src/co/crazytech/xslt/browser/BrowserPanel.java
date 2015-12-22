@@ -56,9 +56,9 @@ public class BrowserPanel extends JPanel {
 		
 		browser = new SimpleSwingBrowser(locale);
 		
-		outputText = new SyntaxEditor(lang.getString("sourcecode"),locale);
+		outputText = new SyntaxEditor(this,lang.getString("sourcecode"),locale);
 		outputText.getRtextArea().setSyntaxEditingStyle(RSyntaxTextArea.SYNTAX_STYLE_HTML);
-		xmlText = new DragDropSyntaxEditor("Drop XML Here",locale);
+		xmlText = new DragDropSyntaxEditor(this,"Drop XML Here",locale);
 		xmlText.getRtextArea().setSyntaxEditingStyle(SyntaxConstants.SYNTAX_STYLE_XML);
 		GridBagConstraints gbc_xmlScrollPane = new GridBagConstraints();
 		gbc_xmlScrollPane.insets = new Insets(0, 0, 5, 0);
@@ -66,7 +66,7 @@ public class BrowserPanel extends JPanel {
 		gbc_xmlScrollPane.gridx = 0;
 		gbc_xmlScrollPane.gridy = 0;
 		
-		xslText = new DragDropSyntaxEditor("Drop XSL Here",locale);
+		xslText = new DragDropSyntaxEditor(this,"Drop XSL Here",locale);
 		xslText.getRtextArea().setSyntaxEditingStyle(SyntaxConstants.SYNTAX_STYLE_XML);
 		GridBagConstraints gbc_xslScrollPane = new GridBagConstraints();
 		gbc_xslScrollPane.insets = new Insets(0, 0, 5, 0);
@@ -82,17 +82,31 @@ public class BrowserPanel extends JPanel {
 		splitPane.setRightComponent(rightHost);
 		rightHost.setLayout(new BorderLayout(0, 0));
 		
+		JSplitPane textSplitPane = new JSplitPane();
+		textSplitPane.setOrientation(JSplitPane.VERTICAL_SPLIT);
+		textSplitPane.setResizeWeight(0.5);
+		textSplitPane.setTopComponent(xmlText);
+		textSplitPane.setBottomComponent(xslText);
+		JPanel topHost = new JPanel();
+		topHost.setLayout(new BorderLayout(0,0));
+		topHost.add(textSplitPane);
+		GridBagConstraints gbc_textSplitPane = new GridBagConstraints();
+		gbc_xmlScrollPane.insets = new Insets(0, 0, 5, 0);
+		gbc_xmlScrollPane.fill = GridBagConstraints.BOTH;
+		gbc_xmlScrollPane.gridx = 0;
+		gbc_xmlScrollPane.gridy = 0;
+		
 		JPanel rightPane = new JPanel();
 		rightHost.add(rightPane);
 //	rightPane.setPreferredSize(new Dimension(300, 700));
 		GridBagLayout gbl_rightPane = new GridBagLayout();
 		gbl_rightPane.columnWidths = new int[]{0, 0};
-		gbl_rightPane.rowHeights = new int[]{0, 0, 0, 0};
+		gbl_rightPane.rowHeights = new int[]{0, 0};
 		gbl_rightPane.columnWeights = new double[]{1.0, Double.MIN_VALUE};
-		gbl_rightPane.rowWeights = new double[]{1.0, 1.0, 0.0, Double.MIN_VALUE};
+		gbl_rightPane.rowWeights = new double[]{1.0, Double.MIN_VALUE};
 		rightPane.setLayout(gbl_rightPane);
-		rightPane.add(xmlText, gbc_xmlScrollPane);
-		rightPane.add(xslText, gbc_xslScrollPane);
+		//rightPane.add(xmlText, gbc_xmlScrollPane);
+		rightPane.add(topHost, gbc_textSplitPane);
 		
 		btnTransform = new JButton("TRANSFORM");
 		btnTransform.addActionListener(new ActionListener() {
@@ -128,7 +142,7 @@ public class BrowserPanel extends JPanel {
 		GridBagConstraints gbc_btnTransform = new GridBagConstraints();
 		gbc_btnTransform.fill = GridBagConstraints.HORIZONTAL;
 		gbc_btnTransform.gridx = 0;
-		gbc_btnTransform.gridy = 2;
+		gbc_btnTransform.gridy = 1;
 		rightPane.add(btnTransform, gbc_btnTransform);
 		
 		_panel_1 = new JPanel();

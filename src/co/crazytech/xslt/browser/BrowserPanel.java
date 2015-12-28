@@ -1,6 +1,7 @@
 package co.crazytech.xslt.browser;
 
 import java.awt.BorderLayout;
+import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
@@ -82,23 +83,23 @@ public class BrowserPanel extends JPanel {
 		splitPane.setRightComponent(rightHost);
 		rightHost.setLayout(new BorderLayout(0, 0));
 		
+		
 		JSplitPane textSplitPane = new JSplitPane();
 		textSplitPane.setOrientation(JSplitPane.VERTICAL_SPLIT);
 		textSplitPane.setResizeWeight(0.5);
 		textSplitPane.setTopComponent(xmlText);
 		textSplitPane.setBottomComponent(xslText);
-		JPanel topHost = new JPanel();
-		topHost.setLayout(new BorderLayout(0,0));
-		topHost.add(textSplitPane);
+		
 		GridBagConstraints gbc_textSplitPane = new GridBagConstraints();
-		gbc_xmlScrollPane.insets = new Insets(0, 0, 5, 0);
-		gbc_xmlScrollPane.fill = GridBagConstraints.BOTH;
-		gbc_xmlScrollPane.gridx = 0;
-		gbc_xmlScrollPane.gridy = 0;
+		gbc_textSplitPane.insets = new Insets(0, 0, 5, 0);
+		gbc_textSplitPane.fill = GridBagConstraints.BOTH;
+		gbc_textSplitPane.gridx = 0;
+		gbc_textSplitPane.gridy = 0;
 		
 		JPanel rightPane = new JPanel();
 		rightHost.add(rightPane);
-//	rightPane.setPreferredSize(new Dimension(300, 700));
+		//	rightPane.setPreferredSize(new Dimension(300, 700));
+		
 		GridBagLayout gbl_rightPane = new GridBagLayout();
 		gbl_rightPane.columnWidths = new int[]{0, 0};
 		gbl_rightPane.rowHeights = new int[]{0, 0};
@@ -106,7 +107,7 @@ public class BrowserPanel extends JPanel {
 		gbl_rightPane.rowWeights = new double[]{1.0, Double.MIN_VALUE};
 		rightPane.setLayout(gbl_rightPane);
 		//rightPane.add(xmlText, gbc_xmlScrollPane);
-		rightPane.add(topHost, gbc_textSplitPane);
+		rightPane.add(textSplitPane, gbc_textSplitPane);
 		
 		btnTransform = new JButton("TRANSFORM");
 		btnTransform.addActionListener(new ActionListener() {

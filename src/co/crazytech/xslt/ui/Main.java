@@ -1,6 +1,7 @@
 package co.crazytech.xslt.ui;
 
 import java.awt.BorderLayout;
+import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.EventQueue;
 import java.awt.GridBagConstraints;
@@ -13,6 +14,7 @@ import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
 import java.io.IOException;
 import java.util.Locale;
+import java.util.Map;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -25,12 +27,15 @@ import javax.swing.JTabbedPane;
 import javax.swing.UIManager;
 import javax.xml.transform.TransformerException;
 
+import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
+
 import res.locale.LangMan;
 import res.locale.MyLangMan;
 
 import com.crazytech.io.IOUtil;
 import com.crazytech.swing.browser.SimpleSwingBrowser;
 import com.crazytech.swing.texteditor.DragDropTextEditor;
+import com.crazytech.swing.texteditor.SyntaxEditor;
 import com.crazytech.swing.texteditor.TextEditor;
 import com.crazytech.xslt.XSLT;
 
@@ -43,7 +48,8 @@ import java.awt.FlowLayout;
 
 public class Main {
 	private JFrame mainframe;
-	private JMenu mnLang;
+	private JMenu mnFile,mnWindow;
+	private JMenu mntmLang,mntmTheme;
 	private JMenuItem mntmLangEn, mntmLangZhS;
 	private LangMan lang;
 	private MyLangMan myLang;
@@ -91,17 +97,32 @@ public class Main {
 		JMenuBar menuBar = new JMenuBar();
 		mainframe.getContentPane().add(menuBar, BorderLayout.NORTH);
 		
-		mnLang = new JMenu(lang.getString("language"));
-		mnLang.setMnemonic('l');
-		menuBar.add(mnLang);
+		mnFile = new JMenu(lang.getString("file"));
+		menuBar.add(mnFile);
+		
+		mnWindow = new JMenu(lang.getString("window"));
+		mntmLang = new JMenu(lang.getString("language"));
+		mntmLang.setMnemonic('l');
+		mnWindow.add(mntmLang);
+		
+		mntmTheme = new JMenu(lang.getString("theme"));
+		Map<String,String> themeMap = SyntaxEditor.getThemeMap();
+		for (String key : themeMap.keySet()) {
+			JMenuItem themeMnItem = new JMenuItem(key);
+			themeMnItem.addActionListener(mntmThemeItemListener(key));
+			mntmTheme.add(themeMnItem);
+		}
+		mnWindow.add(mntmTheme);
+		menuBar.add(mnWindow);
+		
 		
 		mntmLangEn = new JMenuItem(lang.getString("lang_en"));
 		mntmLangEn.addActionListener(mntmChangeLocaleListener("en"));
-		mnLang.add(mntmLangEn);
+		mntmLang.add(mntmLangEn);
 		
 		mntmLangZhS = new JMenuItem(lang.getString("lang_zh_s"));
 		mntmLangZhS.addActionListener(mntmChangeLocaleListener("zh"));
-		mnLang.add(mntmLangZhS);
+		mntmLang.add(mntmLangZhS);
 		
 		btabPane = new BetterTabbedPane(new BrowserPanel());
 		/* deprecated
@@ -124,6 +145,25 @@ public class Main {
 		
 	}
 	
+	private ActionListener mntmThemeItemListener(String themeName) {
+		return new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				setTheme(themeName);
+			}
+		};
+	}
+	
+	private void setTheme(String themeName) {
+		BetterTabbedPane tabPane = (BetterTabbedPane)mainframe.getContentPane().getComponent(1);
+		for (int i = 0; i < tabPane.getTabbedPane().getTabCount()-1; i++) {
+			BrowserPanel browser = (BrowserPanel)tabPane.getTabbedPane().getComponentAt(i);
+			browser.setTheme(themeName);
+		}
+		tabPane.revalidate();
+	}
+	
 	private void changeLocale(String locale) {
 		Locale loc = new Locale(locale);
 		Locale.setDefault(loc);
@@ -132,11 +172,19 @@ public class Main {
 		myLang = new MyLangMan(loc);
 		mainframe.setTitle(myLang.getString("appname"));
 		
-		mnLang.setText(lang.getString("language"));
+		mnFile.setText(lang.getString("file"));
+		mnWindow.setText(lang.getString("window"));
+		mntmTheme.setText(lang.getString("theme"));
+		mntmLang.setText(lang.getString("language"));
 		mntmLangEn.setText(lang.getString("lang_en"));
 		mntmLangZhS.setText(lang.getString("lang_zh_s"));
 		
-		
+		BetterTabbedPane tabPane = (BetterTabbedPane)mainframe.getContentPane().getComponent(1);
+		for (int i = 0; i < tabPane.getTabbedPane().getTabCount()-1; i++) {
+			BrowserPanel browser = (BrowserPanel)tabPane.getTabbedPane().getComponentAt(i);
+			browser.changeLocale(locale);
+		}
+		tabPane.revalidate();
 		setUILang(loc);
 	}
 	

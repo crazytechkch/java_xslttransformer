@@ -77,7 +77,7 @@ public class BrowserPanel extends JPanel {
 		
 		
 		splitPane = new JSplitPane();
-		splitPane.setResizeWeight(0.8);
+		splitPane.setResizeWeight(0.7);
 		
 		rightHost = new JPanel();
 		splitPane.setRightComponent(rightHost);
@@ -159,6 +159,12 @@ public class BrowserPanel extends JPanel {
 		_panel_1.add(tabPane);
 		splitPane.setLeftComponent(_panel_1);
 		add(splitPane,BorderLayout.CENTER);
+	}
+	
+	public void setTheme(String themeName) {
+		outputText.setTheme(outputText.getRtextArea(), themeName);
+		xmlText.setTheme(xmlText.getRtextArea(), themeName);
+		xslText.setTheme(xslText.getRtextArea(), themeName);
 	}
 
 	public void changeLocale(String locale){

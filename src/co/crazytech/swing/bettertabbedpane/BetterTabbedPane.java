@@ -120,4 +120,16 @@ public class BetterTabbedPane extends JPanel {
         frame.add(new BetterTabbedPane(createJPanel()));
         frame.setVisible(true);
     }
+
+	public JPanel getComponent() {
+		return component;
+	}
+
+	public void setComponent(JPanel component) {
+		this.component = component;
+	}
+
+	public JTabbedPane getTabbedPane() {
+		return tabbedPane;
+	}
 }

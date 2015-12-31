@@ -8,5 +8,6 @@
 	<classpathentry kind="lib" path="D:/workspace/libraries/xswingx.jar"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/RSyntaxTextArea"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/CrazyTechCommons"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/ICEpdf-6.0.2"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

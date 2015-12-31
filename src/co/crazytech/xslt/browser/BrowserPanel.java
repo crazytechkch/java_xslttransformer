@@ -59,8 +59,11 @@ public class BrowserPanel extends JPanel {
 		
 		outputText = new SyntaxEditor(this,lang.getString("sourcecode"),locale);
 		outputText.getRtextArea().setSyntaxEditingStyle(RSyntaxTextArea.SYNTAX_STYLE_HTML);
+		outputText.setAutocompletion(SyntaxEditor.RstaAC.AC_HTML);
 		xmlText = new DragDropSyntaxEditor(this,"Drop XML Here",locale);
 		xmlText.getRtextArea().setSyntaxEditingStyle(SyntaxConstants.SYNTAX_STYLE_XML);
+		xmlText.setAutocompletion(SyntaxEditor.RstaAC.AC_XML);
+		
 		GridBagConstraints gbc_xmlScrollPane = new GridBagConstraints();
 		gbc_xmlScrollPane.insets = new Insets(0, 0, 5, 0);
 		gbc_xmlScrollPane.fill = GridBagConstraints.BOTH;
@@ -69,6 +72,8 @@ public class BrowserPanel extends JPanel {
 		
 		xslText = new DragDropSyntaxEditor(this,"Drop XSL Here",locale);
 		xslText.getRtextArea().setSyntaxEditingStyle(SyntaxConstants.SYNTAX_STYLE_XML);
+		xslText.setAutocompletion(SyntaxEditor.RstaAC.AC_XML);
+		xslText.setAutocompletion(SyntaxEditor.RstaAC.AC_HTML);
 		GridBagConstraints gbc_xslScrollPane = new GridBagConstraints();
 		gbc_xslScrollPane.insets = new Insets(0, 0, 5, 0);
 		gbc_xslScrollPane.fill = GridBagConstraints.BOTH;

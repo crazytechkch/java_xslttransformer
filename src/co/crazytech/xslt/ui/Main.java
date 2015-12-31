@@ -12,7 +12,11 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
+import java.awt.event.WindowEvent;
+import java.awt.event.WindowListener;
 import java.io.IOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Locale;
 import java.util.Map;
 
@@ -70,7 +74,9 @@ public class Main {
 				}
 			}
 		});
+		
 	}
+	
 
 	/**
 	 * Create the application.
@@ -93,7 +99,54 @@ public class Main {
 		mainframe.setSize(1024, 768);
 		mainframe.setTitle(myLang.getString("appname"));
 		mainframe.setLocationRelativeTo(null);
-		
+		mainframe.addWindowListener(new WindowListener() {
+			
+		@Override
+		public void windowActivated(WindowEvent e) {
+			// TODO Auto-generated method stub
+			
+		}
+
+		@Override
+		public void windowClosing(WindowEvent e) {
+			try {
+				IOUtil.writeFile("test test test", "D:/config.dat");
+			} catch (IOException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
+		}
+
+		@Override
+		public void windowDeactivated(WindowEvent e) {
+			// TODO Auto-generated method stub
+			
+		}
+
+		@Override
+		public void windowDeiconified(WindowEvent e) {
+			// TODO Auto-generated method stub
+			
+		}
+
+		@Override
+		public void windowIconified(WindowEvent e) {
+			// TODO Auto-generated method stub
+			
+		}
+
+		@Override
+		public void windowOpened(WindowEvent e) {
+			// TODO Auto-generated method stub
+			
+		}
+
+		@Override
+		public void windowClosed(WindowEvent e) {
+			// TODO Auto-generated method stub
+			
+		}
+		});
 		JMenuBar menuBar = new JMenuBar();
 		mainframe.getContentPane().add(menuBar, BorderLayout.NORTH);
 		

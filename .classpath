@@ -9,5 +9,6 @@
 	<classpathentry combineaccessrules="false" kind="src" path="/RSyntaxTextArea"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/CrazyTechCommons"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/ICEpdf-6.0.2"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/ApacheFOP"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

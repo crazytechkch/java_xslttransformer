@@ -162,6 +162,7 @@ public class Main {
 				// TODO Auto-generated catch block
 				e1.printStackTrace();
 			}
+			System.exit(0);
 		}
 
 		@Override
@@ -184,14 +185,11 @@ public class Main {
 
 		@Override
 		public void windowOpened(WindowEvent e) {
-			// TODO Auto-generated method stub
-			
 		}
 
 		@Override
 		public void windowClosed(WindowEvent e) {
 			// TODO Auto-generated method stub
-			
 		}
 		});
 		JMenuBar menuBar = new JMenuBar();

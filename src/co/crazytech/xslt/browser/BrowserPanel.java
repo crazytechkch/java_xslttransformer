@@ -7,7 +7,9 @@ import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.File;
 import java.io.IOException;
+import java.io.StringReader;
 import java.util.Locale;
 
 import javax.swing.JButton;
@@ -15,6 +17,10 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBException;
+import javax.xml.bind.Marshaller;
+import javax.xml.bind.Unmarshaller;
 import javax.xml.transform.TransformerException;
 
 import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
@@ -29,6 +35,7 @@ import com.crazytech.swing.texteditor.SyntaxEditor;
 import com.crazytech.swing.texteditor.TextEditor;
 import com.crazytech.xslt.XSLT;
 
+import co.crazytech.xslt.config.AppConfig;
 import res.locale.LangMan;
 import res.locale.MyLangMan;
 
@@ -43,16 +50,25 @@ public class BrowserPanel extends JPanel {
 	private Locale locale;
 	private LangMan lang;
 	private MyLangMan myLang;
+	private AppConfig config;
 	
-	
-	public BrowserPanel() {
+	public BrowserPanel(AppConfig config) {
 		super();
 		locale = Locale.getDefault();
 		lang = new LangMan(locale);
-		init();
+		init(config);
 	}
 	
-	private void init() {
+	public BrowserPanel(AppConfig config, String xmlPath, String xslPath) {
+		super();
+		locale = Locale.getDefault();
+		lang = new LangMan(locale);
+		init(config);
+		setRstaContent(xmlPath, xslPath);
+		btnTransform.doClick();
+	}
+	
+	private void init(AppConfig config) {
 		setLayout(new BorderLayout(0, 0));
 		
 		browser = new SimpleSwingBrowser(locale);
@@ -164,6 +180,21 @@ public class BrowserPanel extends JPanel {
 		_panel_1.add(tabPane);
 		splitPane.setLeftComponent(_panel_1);
 		add(splitPane,BorderLayout.CENTER);
+		setTheme(config.getRstaTheme());
+		changeLocale(config.getLocale());
+		
+	}
+	
+	private void setRstaContent(String xmlPath, String xslPath){
+		try {
+			xmlText.setText(IOUtil.readFile(xmlPath));
+			xmlText.setCurrFilePath(xmlPath);
+			xslText.setText(IOUtil.readFile(xslPath));
+			xslText.setCurrFilePath(xslPath);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 	
 	public void setTheme(String themeName) {
@@ -171,7 +202,7 @@ public class BrowserPanel extends JPanel {
 		xmlText.setTheme(xmlText.getRtextArea(), themeName);
 		xslText.setTheme(xslText.getRtextArea(), themeName);
 	}
-
+	
 	public void changeLocale(String locale){
 		Locale loc = new Locale(locale);
 		Locale.setDefault(loc);
@@ -186,5 +217,13 @@ public class BrowserPanel extends JPanel {
 		xmlText.onLocaleChange(loc);
 		xslText.onLocaleChange(loc);
 		tabPane.setTitleAt(1, lang.getString("sourcecode"));
+	}
+
+	public DragDropSyntaxEditor getXmlText() {
+		return xmlText;
+	}
+
+	public DragDropSyntaxEditor getXslText() {
+		return xslText;
 	}
 }

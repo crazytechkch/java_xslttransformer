@@ -14,9 +14,13 @@ import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
+import java.io.File;
 import java.io.IOException;
+import java.io.StringReader;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
@@ -29,6 +33,10 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 import javax.swing.UIManager;
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBException;
+import javax.xml.bind.Marshaller;
+import javax.xml.bind.Unmarshaller;
 import javax.xml.transform.TransformerException;
 
 import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
@@ -45,6 +53,8 @@ import com.crazytech.xslt.XSLT;
 
 import co.crazytech.swing.bettertabbedpane.BetterTabbedPane;
 import co.crazytech.xslt.browser.BrowserPanel;
+import co.crazytech.xslt.config.AppConfig;
+import co.crazytech.xslt.config.Tab;
 
 import javax.swing.JSplitPane;
 
@@ -59,6 +69,7 @@ public class Main {
 	private MyLangMan myLang;
 	private JTabbedPane tabPane;
 	private BetterTabbedPane btabPane;
+	private AppConfig config;
 
 	/**
 	 * Launch the application.
@@ -82,7 +93,32 @@ public class Main {
 	 * Create the application.
 	 */
 	public Main() {
+		loadConfig();
 		initialize();
+	}
+	
+	private void loadConfig(){
+		try {
+			JAXBContext jaxbContext = JAXBContext.newInstance(AppConfig.class);
+			if(new File("config.dat").exists()){
+					Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
+					String xmlStr = IOUtil.readFile("config.dat");
+					StringReader reader = new StringReader(xmlStr);
+					config = (AppConfig) unmarshaller.unmarshal(reader);
+			} else {
+				Marshaller marshaller = jaxbContext.createMarshaller();
+				config = new AppConfig();
+				config.setLocale("en");;
+				config.setRstaTheme("Default");
+				marshaller.marshal(config, new File("config.dat"));
+			}
+		} catch (JAXBException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 
 	/**
@@ -109,9 +145,20 @@ public class Main {
 
 		@Override
 		public void windowClosing(WindowEvent e) {
+			List<Tab> tabs = new ArrayList<Tab>();
+			BetterTabbedPane tabPane = (BetterTabbedPane)mainframe.getContentPane().getComponent(1);
+			tabPane.revalidate();
+			for (int i = 0; i < tabPane.getTabbedPane().getTabCount()-1; i++) {
+				BrowserPanel browser = (BrowserPanel)tabPane.getTabbedPane().getComponentAt(i);
+				tabs.add(new Tab(browser.getXmlText().getCurrFilePath(), browser.getXslText().getCurrFilePath()));
+			}
+			config.setTabs(tabs);
 			try {
-				IOUtil.writeFile("test test test", "D:/config.dat");
-			} catch (IOException e1) {
+				JAXBContext jaxbContext = JAXBContext.newInstance(AppConfig.class);
+				Marshaller marshaller = jaxbContext.createMarshaller();
+				marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
+				marshaller.marshal(config, new File("config.dat"));
+			} catch (JAXBException e1) {
 				// TODO Auto-generated catch block
 				e1.printStackTrace();
 			}
@@ -177,7 +224,7 @@ public class Main {
 		mntmLangZhS.addActionListener(mntmChangeLocaleListener("zh"));
 		mntmLang.add(mntmLangZhS);
 		
-		btabPane = new BetterTabbedPane(new BrowserPanel());
+		btabPane = new BetterTabbedPane(config);
 		/* deprecated
 		tabPane = new JTabbedPane(JTabbedPane.TOP);
 		tabPane.addTab("", new BrowserPanel());
@@ -185,6 +232,8 @@ public class Main {
 		tabPane.addTab("", new BrowserPanel());
 		*/
 		mainframe.getContentPane().add(btabPane, BorderLayout.CENTER);
+		setTheme(config.getRstaTheme());
+		changeLocale(config.getLocale());
 	}
 	
 	private ActionListener mntmChangeLocaleListener(final String locale) {
@@ -215,6 +264,15 @@ public class Main {
 			browser.setTheme(themeName);
 		}
 		tabPane.revalidate();
+		try {
+			JAXBContext jaxbCtx = JAXBContext.newInstance(AppConfig.class);
+			Marshaller marshaller = jaxbCtx.createMarshaller();
+			config.setRstaTheme(themeName);
+			marshaller.marshal(config, new File("config.dat"));
+		} catch (JAXBException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 	
 	private void changeLocale(String locale) {
@@ -239,6 +297,16 @@ public class Main {
 		}
 		tabPane.revalidate();
 		setUILang(loc);
+		try {
+			JAXBContext jaxbCtx = JAXBContext.newInstance(AppConfig.class);
+			Marshaller marshaller = jaxbCtx.createMarshaller();
+			config.setLocale(locale);
+			marshaller.marshal(config, new File("config.dat"));
+		} catch (JAXBException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
 	}
 	
 	private void setUILang(Locale locale) {

@@ -61,6 +61,7 @@ public class BrowserPanel extends JPanel {
 	private JTabbedPane tabPane;
 	private JButton btnTransform;
 	private JSplitPane splitPane;
+	private JPanel pdfViewer;
 	private JPanel rightHost, _panel_1;
 	private DragDropSyntaxEditor xmlText,xslText;
 	private Locale locale;
@@ -163,8 +164,9 @@ public class BrowserPanel extends JPanel {
 							browser.loadContent(strOutput);
 							outputText.setText(strOutput);
 							if(strOutput.indexOf("fo:root")!=-1){
-								IOUtil.writeFile(strOutput, "temp.fo");
-								FopFactory fopfac = FopFactory.newInstance(new File("fop.conf"));
+								browser.loadContent("Not Available");
+								IOUtil.overwriteFile(strOutput, "temp.fo");
+								FopFactory fopfac = FopFactory.newInstance(new File("src/res/fop.xconf"));
 								OutputStream out = new BufferedOutputStream(new FileOutputStream(new File("temp.pdf")));
 								Fop fop = fopfac.newFop(MimeConstants.MIME_PDF,out);
 								TransformerFactory factory = TransformerFactory.newInstance();
@@ -172,7 +174,7 @@ public class BrowserPanel extends JPanel {
 								Source src = new StreamSource(new File("temp.fo"));
 								Result res = new SAXResult(fop.getDefaultHandler());
 								transformer.transform(src, res);
-							
+								out.close();
 							}
 						} catch (TransformerException | IOException e) {
 							// TODO Auto-generated catch block
@@ -204,6 +206,8 @@ public class BrowserPanel extends JPanel {
 		tabPane = new JTabbedPane(JTabbedPane.TOP);
 		tabPane.addTab("HTML", null, browser.getContentPane(), null);
 		
+		pdfViewer = new JPanel();
+		tabPane.addTab("FO-PDF", null, pdfViewer, null);
 		
 		JScrollPane outputPane = new JScrollPane();
 		tabPane.addTab(lang.getString("sourcecode"), null, outputPane, null);
@@ -247,7 +251,7 @@ public class BrowserPanel extends JPanel {
 		outputText.onLocaleChange(loc);
 		xmlText.onLocaleChange(loc);
 		xslText.onLocaleChange(loc);
-		tabPane.setTitleAt(1, lang.getString("sourcecode"));
+		tabPane.setTitleAt(2, lang.getString("sourcecode"));
 	}
 
 	public DragDropSyntaxEditor getXmlText() {

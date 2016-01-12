@@ -12,8 +12,11 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
+import java.awt.event.InputEvent;
+import java.awt.event.KeyEvent;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
+import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.io.IOException;
 import java.io.StringReader;
@@ -24,15 +27,19 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
+import javax.swing.Action;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
+import javax.swing.KeyStroke;
 import javax.swing.UIManager;
+import javax.swing.WindowConstants;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
@@ -64,7 +71,7 @@ public class Main {
 	private JFrame mainframe;
 	private JMenu mnFile,mnWindow;
 	private JMenu mntmLang,mntmTheme;
-	private JMenuItem mntmLangEn, mntmLangZhS;
+	private JMenuItem mntmExit,mntmLangEn, mntmLangZhS;
 	private LangMan lang;
 	private MyLangMan myLang;
 	private JTabbedPane tabPane;
@@ -135,6 +142,7 @@ public class Main {
 		mainframe.setSize(1024, 768);
 		mainframe.setTitle(myLang.getString("appname"));
 		mainframe.setLocationRelativeTo(null);
+		mainframe.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
 		mainframe.addWindowListener(new WindowListener() {
 			
 		@Override
@@ -145,24 +153,7 @@ public class Main {
 
 		@Override
 		public void windowClosing(WindowEvent e) {
-			List<Tab> tabs = new ArrayList<Tab>();
-			BetterTabbedPane tabPane = (BetterTabbedPane)mainframe.getContentPane().getComponent(1);
-			tabPane.revalidate();
-			for (int i = 0; i < tabPane.getTabbedPane().getTabCount()-1; i++) {
-				BrowserPanel browser = (BrowserPanel)tabPane.getTabbedPane().getComponentAt(i);
-				tabs.add(new Tab(browser.getXmlText().getCurrFilePath(), browser.getXslText().getCurrFilePath()));
-			}
-			config.setTabs(tabs);
-			try {
-				JAXBContext jaxbContext = JAXBContext.newInstance(AppConfig.class);
-				Marshaller marshaller = jaxbContext.createMarshaller();
-				marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
-				marshaller.marshal(config, new File("config.dat"));
-			} catch (JAXBException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
-			}
-			System.exit(0);
+			confirmExit();
 		}
 
 		@Override
@@ -196,14 +187,28 @@ public class Main {
 		mainframe.getContentPane().add(menuBar, BorderLayout.NORTH);
 		
 		mnFile = new JMenu(lang.getString("file"));
+		mnFile.setMnemonic('F');
+		mntmExit = new JMenuItem(lang.getString("exit"));
+		mntmExit.setMnemonic('E');
+		mntmExit.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F4, InputEvent.ALT_DOWN_MASK));
+		mntmExit.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				confirmExit();
+			}
+		});
+		mnFile.add(mntmExit);
 		menuBar.add(mnFile);
 		
 		mnWindow = new JMenu(lang.getString("window"));
+		mnWindow.setMnemonic('w');
 		mntmLang = new JMenu(lang.getString("language"));
 		mntmLang.setMnemonic('l');
 		mnWindow.add(mntmLang);
 		
 		mntmTheme = new JMenu(lang.getString("theme"));
+		mntmTheme.setMnemonic('t');
 		Map<String,String> themeMap = SyntaxEditor.getThemeMap();
 		for (String key : themeMap.keySet()) {
 			JMenuItem themeMnItem = new JMenuItem(key);
@@ -283,6 +288,7 @@ public class Main {
 		
 		mnFile.setText(lang.getString("file"));
 		mnWindow.setText(lang.getString("window"));
+		mntmExit.setText(lang.getString("exit"));
 		mntmTheme.setText(lang.getString("theme"));
 		mntmLang.setText(lang.getString("language"));
 		mntmLangEn.setText(lang.getString("lang_en"));
@@ -305,6 +311,38 @@ public class Main {
 			e.printStackTrace();
 		}
 
+	}
+	
+	private void confirmExit(){
+		switch (optionDialog(mainframe, lang.getString("confirm_exit"), lang.getString("exit"))) {
+		case 0:
+			List<Tab> tabs = new ArrayList<Tab>();
+			BetterTabbedPane tabPane = (BetterTabbedPane)mainframe.getContentPane().getComponent(1);
+			tabPane.revalidate();
+			for (int i = 0; i < tabPane.getTabbedPane().getTabCount()-1; i++) {
+				BrowserPanel browser = (BrowserPanel)tabPane.getTabbedPane().getComponentAt(i);
+				tabs.add(new Tab(browser.getXmlText().getCurrFilePath(), browser.getXslText().getCurrFilePath()));
+			}
+			config.setTabs(tabs);
+			try {
+				JAXBContext jaxbContext = JAXBContext.newInstance(AppConfig.class);
+				Marshaller marshaller = jaxbContext.createMarshaller();
+				marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
+				marshaller.marshal(config, new File("config.dat"));
+			} catch (JAXBException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
+			System.exit(0);
+			break;
+
+		default:
+			break;
+		}
+	}
+	
+	public static int optionDialog(Component component, String msg, String title) {
+		return JOptionPane.showConfirmDialog(component, msg, title, JOptionPane.OK_CANCEL_OPTION);
 	}
 	
 	private void setUILang(Locale locale) {

@@ -322,6 +322,7 @@ public class Main {
 			for (int i = 0; i < tabPane.getTabbedPane().getTabCount()-1; i++) {
 				BrowserPanel browser = (BrowserPanel)tabPane.getTabbedPane().getComponentAt(i);
 				tabs.add(new Tab(browser.getXmlText().getCurrFilePath(), browser.getXslText().getCurrFilePath()));
+				browser.onExit();
 			}
 			config.setTabs(tabs);
 			try {

@@ -60,7 +60,8 @@ public class BetterTabbedPane extends JPanel {
         if(config.getTabs()!=null){
 	        for (Tab tab: config.getTabs()) {
 	        	/* add first tab */
-	        	tabbedPane.add(tab.getXmlPath()!=null&&tab.getXslPath()!=null?new BrowserPanel(config,tab.getXmlPath(),tab.getXslPath()):new BrowserPanel(config), 
+	        	tabbedPane.add(tab.getXmlPath()!=null&&tab.getXslPath()!=null?
+	        			new BrowserPanel(config,tab.getXmlPath(),tab.getXslPath()):new BrowserPanel(config), 
 	        			"Tab " + String.valueOf(count),
 	        			numTabs++);
 	        	tabbedPane.setTabComponentAt(count, new BetterTab(this));

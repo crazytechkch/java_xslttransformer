@@ -9,10 +9,14 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.BufferedOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.StringReader;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 
 import javax.swing.JButton;
@@ -27,6 +31,7 @@ import javax.xml.bind.Unmarshaller;
 import javax.xml.transform.Result;
 import javax.xml.transform.Source;
 import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.sax.SAXResult;
@@ -41,6 +46,8 @@ import org.apache.fop.events.FOPEventListenerProxy;
 import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
 import org.fife.ui.rsyntaxtextarea.SyntaxConstants;
 import org.fife.ui.rtextarea.RTextScrollPane;
+import org.icepdf.ri.common.SwingController;
+import org.icepdf.ri.common.SwingViewBuilder;
 import org.xml.sax.SAXException;
 
 import com.crazytech.io.IOUtil;
@@ -51,6 +58,7 @@ import com.crazytech.swing.texteditor.SyntaxEditor;
 import com.crazytech.swing.texteditor.TextEditor;
 import com.crazytech.xslt.XSLT;
 
+import co.crazytech.commons.util.RandomCharacters;
 import co.crazytech.xslt.config.AppConfig;
 import res.locale.LangMan;
 import res.locale.MyLangMan;
@@ -61,13 +69,15 @@ public class BrowserPanel extends JPanel {
 	private JTabbedPane tabPane;
 	private JButton btnTransform;
 	private JSplitPane splitPane;
-	private JPanel pdfViewer;
+	private JPanel pdfViewerContainer;
 	private JPanel rightHost, _panel_1;
 	private DragDropSyntaxEditor xmlText,xslText;
 	private Locale locale;
 	private LangMan lang;
 	private MyLangMan myLang;
 	private AppConfig config;
+	private SwingController pdfCtrl;
+	private List<String> tempFileNames;
 	
 	public BrowserPanel(AppConfig config) {
 		super();
@@ -82,12 +92,12 @@ public class BrowserPanel extends JPanel {
 		lang = new LangMan(locale);
 		init(config);
 		setRstaContent(xmlPath, xslPath);
-		btnTransform.doClick();
+		//btnTransform.doClick();
 	}
 	
 	private void init(AppConfig config) {
 		setLayout(new BorderLayout(0, 0));
-		
+		tempFileNames = new ArrayList<String>();
 		browser = new SimpleSwingBrowser(locale);
 		
 		outputText = new SyntaxEditor(this,lang.getString("sourcecode"),locale);
@@ -148,52 +158,7 @@ public class BrowserPanel extends JPanel {
 		rightPane.add(textSplitPane, gbc_textSplitPane);
 		
 		btnTransform = new JButton("TRANSFORM");
-		btnTransform.addActionListener(new ActionListener() {
-			
-			@Override
-			public void actionPerformed(ActionEvent ev) {
-				Runnable runnable = new Runnable() {
-					
-					@Override
-					public void run() {
-						// TODO Auto-generated method stub
-						String strXml = xmlText.getText();
-						String strXsl = xslText.getText();
-						try {
-							String strOutput = XSLT.transform(strXsl, strXml, null, IOUtil.DEFAULT_CHARSET);
-							browser.loadContent(strOutput);
-							outputText.setText(strOutput);
-							if(strOutput.indexOf("fo:root")!=-1){
-								browser.loadContent("Not Available");
-								IOUtil.overwriteFile(strOutput, "temp.fo");
-								FopFactory fopfac = FopFactory.newInstance(new File("src/res/fop.xconf"));
-								OutputStream out = new BufferedOutputStream(new FileOutputStream(new File("temp.pdf")));
-								Fop fop = fopfac.newFop(MimeConstants.MIME_PDF,out);
-								TransformerFactory factory = TransformerFactory.newInstance();
-								Transformer transformer = factory.newTransformer();
-								Source src = new StreamSource(new File("temp.fo"));
-								Result res = new SAXResult(fop.getDefaultHandler());
-								transformer.transform(src, res);
-								out.close();
-							}
-						} catch (TransformerException | IOException e) {
-							// TODO Auto-generated catch block
-							String errorMsg = myLang.getString("error")+"\n"+e.getLocalizedMessage();
-							outputText.setText(errorMsg);
-							browser.loadContent(errorMsg);
-						} catch (SAXException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
-						} finally {
-							tabPane.setSelectedIndex(0);
-							
-						}
-						
-					}
-				};
-				runnable.run();
-			}
-		});
+		btnTransform.addActionListener(transformActionListener());
 		GridBagConstraints gbc_btnTransform = new GridBagConstraints();
 		gbc_btnTransform.fill = GridBagConstraints.HORIZONTAL;
 		gbc_btnTransform.gridx = 0;
@@ -206,8 +171,14 @@ public class BrowserPanel extends JPanel {
 		tabPane = new JTabbedPane(JTabbedPane.TOP);
 		tabPane.addTab("HTML", null, browser.getContentPane(), null);
 		
-		pdfViewer = new JPanel();
-		tabPane.addTab("FO-PDF", null, pdfViewer, null);
+		pdfCtrl = new SwingController();
+		SwingViewBuilder iceBuilder = new SwingViewBuilder(pdfCtrl);
+		pdfViewerContainer = new JPanel();
+		pdfViewerContainer.setLayout(new BorderLayout());
+		JPanel pdfViewer = iceBuilder.buildViewerPanel();
+		pdfViewer.setMinimumSize(new Dimension(300, 300));
+		pdfViewerContainer.add(pdfViewer,BorderLayout.CENTER);
+		tabPane.addTab("FO-PDF", null, pdfViewerContainer, null);
 		
 		JScrollPane outputPane = new JScrollPane();
 		tabPane.addTab(lang.getString("sourcecode"), null, outputPane, null);
@@ -218,6 +189,64 @@ public class BrowserPanel extends JPanel {
 		setTheme(config.getRstaTheme());
 		changeLocale(config.getLocale());
 		
+	}
+	
+	private ActionListener transformActionListener(){
+		return new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				Runnable runnable = new Runnable() {
+					
+					@Override
+					public void run() {
+						// TODO Auto-generated method stub
+						String strXml = xmlText.getText();
+						String strXsl = xslText.getText();
+						try {
+							String strOutput = XSLT.transform(strXsl, strXml, null, IOUtil.DEFAULT_CHARSET);
+							browser.loadContent(strOutput);
+							outputText.setText(strOutput);
+							if(strOutput.indexOf("fo:root")!=-1){
+								transformFoPdf(strOutput);
+								tabPane.setSelectedIndex(1);
+							} else tabPane.setSelectedIndex(0);
+						} catch (TransformerException | IOException e) {
+							// TODO Auto-generated catch block
+							String errorMsg = myLang.getString("error")+"\n"+e.getLocalizedMessage();
+							outputText.setText(errorMsg);
+							browser.loadContent(errorMsg);
+						} catch (SAXException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
+						
+					}
+				};
+				runnable.run();
+			}
+		};
+	}
+	
+	private void transformFoPdf(String trOutput) throws IOException, SAXException, TransformerException{
+		browser.loadContent("Not Available");
+		String filename = RandomCharacters.randomString(8);
+		tempFileNames.add(filename);
+		new File("temp/").mkdirs();
+		File foFile = new File("temp/"+filename+".fo");
+		IOUtil.overwriteFile(trOutput, "temp/"+filename+".fo");
+		FopFactory fopfac = FopFactory.newInstance(new File("src/res/fop.xconf"));
+		File pdfFile = new File("temp/"+filename+".pdf");
+		OutputStream out = new BufferedOutputStream(new FileOutputStream(pdfFile));
+		Fop fop = fopfac.newFop(MimeConstants.MIME_PDF,out);
+		TransformerFactory factory = TransformerFactory.newInstance();
+		Transformer transformer = factory.newTransformer();
+		Source src = new StreamSource(foFile);
+		Result res = new SAXResult(fop.getDefaultHandler());
+		transformer.transform(src, res);
+		out.close();
+		InputStream in = new FileInputStream(pdfFile);
+		pdfCtrl.openDocument(in,"","");
+		in.close();
 	}
 	
 	private void setRstaContent(String xmlPath, String xslPath){
@@ -252,6 +281,14 @@ public class BrowserPanel extends JPanel {
 		xmlText.onLocaleChange(loc);
 		xslText.onLocaleChange(loc);
 		tabPane.setTitleAt(2, lang.getString("sourcecode"));
+	}
+	
+	public void onExit(){
+		for (String filename : tempFileNames) {
+			pdfCtrl.dispose();
+			new File("temp/"+filename+".fo").delete();
+			new File("temp/"+filename+".pdf").delete();
+		}
 	}
 
 	public DragDropSyntaxEditor getXmlText() {

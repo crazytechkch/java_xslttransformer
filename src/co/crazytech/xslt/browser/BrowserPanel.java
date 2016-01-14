@@ -7,6 +7,10 @@ import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.FocusEvent;
+import java.awt.event.FocusListener;
+import java.awt.event.InputEvent;
+import java.awt.event.KeyEvent;
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -19,11 +23,20 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
+import javax.swing.JFrame;
+import javax.swing.JMenu;
+import javax.swing.JMenuBar;
+import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.JSeparator;
 import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
+import javax.swing.KeyStroke;
+import javax.swing.text.DefaultEditorKit;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
@@ -64,6 +77,7 @@ import res.locale.LangMan;
 import res.locale.MyLangMan;
 
 public class BrowserPanel extends JPanel {
+	private JFrame frame;
 	private SimpleSwingBrowser browser;
 	private SyntaxEditor outputText;
 	private JTabbedPane tabPane;
@@ -76,23 +90,28 @@ public class BrowserPanel extends JPanel {
 	private LangMan lang;
 	private MyLangMan myLang;
 	private AppConfig config;
+	private JMenuItem mntmNew,mntmRefresh,mntmOpen,mntmSave,mntmSaveAs,
+		mntmUndo,mntmRedo,mntmSelectAll,mntmCut,mntmCopy,mntmPaste,
+		mntmFind,mntmReplace,mntmGoToLine;
 	private SwingController pdfCtrl;
 	private List<String> tempFileNames;
 	
-	public BrowserPanel(AppConfig config) {
+	public BrowserPanel(JFrame frame, AppConfig config) {
 		super();
+		this.frame = frame;
 		locale = Locale.getDefault();
 		lang = new LangMan(locale);
 		init(config);
 	}
 	
-	public BrowserPanel(AppConfig config, String xmlPath, String xslPath) {
+	public BrowserPanel(JFrame frame, AppConfig config, String xmlPath, String xslPath) {
 		super();
+		this.frame = frame;
 		locale = Locale.getDefault();
 		lang = new LangMan(locale);
 		init(config);
 		setRstaContent(xmlPath, xslPath);
-		//btnTransform.doClick();
+		btnTransform.doClick();
 	}
 	
 	private void init(AppConfig config) {
@@ -100,23 +119,25 @@ public class BrowserPanel extends JPanel {
 		tempFileNames = new ArrayList<String>();
 		browser = new SimpleSwingBrowser(locale);
 		
-		outputText = new SyntaxEditor(this,lang.getString("sourcecode"),locale);
+		outputText = new SyntaxEditor(frame,this,lang.getString("sourcecode"),locale);
 		outputText.getRtextArea().setSyntaxEditingStyle(RSyntaxTextArea.SYNTAX_STYLE_HTML);
 		outputText.setAutocompletion(SyntaxEditor.RstaAC.AC_HTML);
-		xmlText = new DragDropSyntaxEditor(this,"Drop XML Here",locale);
+		outputText.addFocusListener(syntaxFocusListener(outputText));
+		xmlText = new DragDropSyntaxEditor(frame,this,"Drop XML Here",locale);
 		xmlText.getRtextArea().setSyntaxEditingStyle(SyntaxConstants.SYNTAX_STYLE_XML);
 		xmlText.setAutocompletion(SyntaxEditor.RstaAC.AC_XML);
-		
+		xmlText.addFocusListener(syntaxFocusListener(xmlText));
 		GridBagConstraints gbc_xmlScrollPane = new GridBagConstraints();
 		gbc_xmlScrollPane.insets = new Insets(0, 0, 5, 0);
 		gbc_xmlScrollPane.fill = GridBagConstraints.BOTH;
 		gbc_xmlScrollPane.gridx = 0;
 		gbc_xmlScrollPane.gridy = 0;
 		
-		xslText = new DragDropSyntaxEditor(this,"Drop XSL Here",locale);
+		xslText = new DragDropSyntaxEditor(frame,this,"Drop XSL Here",locale);
 		xslText.getRtextArea().setSyntaxEditingStyle(SyntaxConstants.SYNTAX_STYLE_XML);
 		xslText.setAutocompletion(SyntaxEditor.RstaAC.AC_XML);
 		xslText.setAutocompletion(SyntaxEditor.RstaAC.AC_HTML);
+		xslText.addFocusListener(syntaxFocusListener(xslText));
 		GridBagConstraints gbc_xslScrollPane = new GridBagConstraints();
 		gbc_xslScrollPane.insets = new Insets(0, 0, 5, 0);
 		gbc_xslScrollPane.fill = GridBagConstraints.BOTH;
@@ -185,10 +206,70 @@ public class BrowserPanel extends JPanel {
 		outputPane.setViewportView(outputText);
 		_panel_1.add(tabPane);
 		splitPane.setLeftComponent(_panel_1);
+		initMenuItems();
 		add(splitPane,BorderLayout.CENTER);
 		setTheme(config.getRstaTheme());
 		changeLocale(config.getLocale());
 		
+	}
+	
+	private void initMenuItems(){
+		JMenuBar menubar = frame.getJMenuBar();
+		mntmNew = menubar.getMenu(0).getItem(0);
+		mntmRefresh = menubar.getMenu(0).getItem(1);
+		mntmOpen = menubar.getMenu(0).getItem(2);
+		mntmSave = menubar.getMenu(0).getItem(3);
+		mntmSaveAs = menubar.getMenu(0).getItem(4);
+		mntmUndo = menubar.getMenu(1).getItem(0);
+		mntmRedo = menubar.getMenu(1).getItem(1);
+		mntmSelectAll = menubar.getMenu(1).getItem(2);
+		mntmCut = menubar.getMenu(1).getItem(3);
+		mntmCopy = menubar.getMenu(1).getItem(4);
+		mntmPaste = menubar.getMenu(1).getItem(5);
+		mntmFind = menubar.getMenu(2).getItem(0);
+		mntmReplace = menubar.getMenu(2).getItem(1);
+		mntmGoToLine = menubar.getMenu(2).getItem(2);
+	}
+	
+	
+	private FocusListener syntaxFocusListener(SyntaxEditor editor){
+		return new FocusListener() {
+			
+			@Override
+			public void focusLost(FocusEvent e) {
+				// TODO Auto-generated method stub
+				
+			}
+			
+			@Override
+			public void focusGained(FocusEvent e) {
+				resetMenuItemListeners(editor);
+			}
+		};
+	}
+	
+	private void resetMenuItemListeners(SyntaxEditor editor){
+		resetMenuItemListener(mntmNew, editor.mnActNew());
+		resetMenuItemListener(mntmRefresh, editor.mnActRefresh());
+		resetMenuItemListener(mntmOpen, editor.mnActOpen());
+		resetMenuItemListener(mntmSave, editor.mnActSave());
+		resetMenuItemListener(mntmSaveAs, editor.mnActSaveAs());
+		resetMenuItemListener(mntmUndo, editor.mnActUndo());
+		resetMenuItemListener(mntmRedo, editor.mnActRedo());
+		resetMenuItemListener(mntmSelectAll, editor.mnActSelectAll());
+		mntmCut.setAction(editor.mnActCut());
+		mntmCopy.setAction(editor.mnActCopy());
+		mntmPaste.setAction(editor.mnActPaste());
+		mntmFind.setAction(editor.showFindDialogAction());
+		mntmReplace.setAction(editor.showReplaceDialogAction());
+		mntmGoToLine.setAction(editor.goToLineAction());
+	}
+	
+	private void resetMenuItemListener(JMenuItem menuItem,ActionListener listener){
+		for (ActionListener actListener : menuItem.getActionListeners()) {
+			menuItem.removeActionListener(actListener);
+		}
+		menuItem.addActionListener(listener);
 	}
 	
 	private ActionListener transformActionListener(){
@@ -204,19 +285,23 @@ public class BrowserPanel extends JPanel {
 						String strXsl = xslText.getText();
 						try {
 							String strOutput = XSLT.transform(strXsl, strXml, null, IOUtil.DEFAULT_CHARSET);
-							browser.loadContent(strOutput);
-							outputText.setText(strOutput);
 							if(strOutput.indexOf("fo:root")!=-1){
+								clearTempFiles();
 								transformFoPdf(strOutput);
 								tabPane.setSelectedIndex(1);
-							} else tabPane.setSelectedIndex(0);
+							} else {
+								browser.loadContent(strOutput);
+								tabPane.setSelectedIndex(0);
+							}
+							outputText.setText(strOutput);
 						} catch (TransformerException | IOException e) {
 							// TODO Auto-generated catch block
 							String errorMsg = myLang.getString("error")+"\n"+e.getLocalizedMessage();
 							outputText.setText(errorMsg);
-							browser.loadContent(errorMsg);
+							JOptionPane.showMessageDialog(frame, "TransformerException:\n"+e.getMessage());
 						} catch (SAXException e) {
 							// TODO Auto-generated catch block
+							JOptionPane.showMessageDialog(frame, "SAXException:\n"+e.getMessage());
 							e.printStackTrace();
 						}
 						
@@ -283,12 +368,18 @@ public class BrowserPanel extends JPanel {
 		tabPane.setTitleAt(2, lang.getString("sourcecode"));
 	}
 	
-	public void onExit(){
+	private void clearTempFiles(){
+		pdfCtrl.closeDocument();
 		for (String filename : tempFileNames) {
-			pdfCtrl.dispose();
 			new File("temp/"+filename+".fo").delete();
 			new File("temp/"+filename+".pdf").delete();
 		}
+	}
+	
+	
+	
+	public void onExit(){
+		clearTempFiles();
 	}
 
 	public DragDropSyntaxEditor getXmlText() {

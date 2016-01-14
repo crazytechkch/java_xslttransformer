@@ -184,10 +184,40 @@ public class Main {
 		}
 		});
 		JMenuBar menuBar = new JMenuBar();
-		mainframe.getContentPane().add(menuBar, BorderLayout.NORTH);
+		mainframe.setJMenuBar(menuBar());
 		
+		
+		btabPane = new BetterTabbedPane(mainframe,config);
+		/* deprecated
+		tabPane = new JTabbedPane(JTabbedPane.TOP);
+		tabPane.addTab("", new BrowserPanel());
+		tabPane.addTab("", new BrowserPanel());
+		tabPane.addTab("", new BrowserPanel());
+		*/
+		mainframe.getContentPane().add(btabPane, BorderLayout.CENTER);
+		setTheme(config.getRstaTheme());
+		changeLocale(config.getLocale());
+	}
+	
+	private JMenuBar menuBar() {
+		JMenuBar menuBar = new JMenuBar();
 		mnFile = new JMenu(lang.getString("file"));
-		mnFile.setMnemonic('F');
+		mnFile.setMnemonic('f');
+		JMenuItem mntm = new JMenuItem(lang.getString("new"), 'n');
+		mntm.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_N, InputEvent.CTRL_DOWN_MASK));
+		mnFile.add(mntm);
+		mntm = new JMenuItem(lang.getString("refresh"), 'r');
+		mntm.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F5, 0));
+		mnFile.add(mntm);
+		mntm = new JMenuItem(lang.getString("open"), 'o');
+		mntm.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_O, InputEvent.CTRL_DOWN_MASK));
+		mnFile.add(mntm);
+		mntm = new JMenuItem(lang.getString("save"), 's');
+		mntm.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S, InputEvent.CTRL_DOWN_MASK));
+		mnFile.add(mntm);
+		mntm = new JMenuItem(lang.getString("saveas"), 's');
+		mntm.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F12, InputEvent.CTRL_DOWN_MASK));
+		mnFile.add(mntm);
 		mntmExit = new JMenuItem(lang.getString("exit"));
 		mntmExit.setMnemonic('E');
 		mntmExit.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F4, InputEvent.ALT_DOWN_MASK));
@@ -200,6 +230,41 @@ public class Main {
 		});
 		mnFile.add(mntmExit);
 		menuBar.add(mnFile);
+		
+		JMenu mnEdit = new JMenu(lang.getString("edit"));
+		mnEdit.setMnemonic('e');
+		mntm = new JMenuItem(lang.getString("undo"), 'u');
+		mntm.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Z, InputEvent.CTRL_DOWN_MASK));
+		mnEdit.add(mntm);
+		mntm = new JMenuItem(lang.getString("redo"), 'r');
+		mntm.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Y, InputEvent.CTRL_DOWN_MASK));
+		mnEdit.add(mntm);
+		mntm = new JMenuItem(lang.getString("selectall"), 's');
+		mntm.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_A, InputEvent.CTRL_DOWN_MASK));
+		mnEdit.add(mntm);
+		mntm = new JMenuItem(lang.getString("cut"), 'c');
+		mntm.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_X, InputEvent.CTRL_DOWN_MASK));
+		mnEdit.add(mntm);
+		mntm = new JMenuItem(lang.getString("copy"), 'c');
+		mntm.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_C, InputEvent.CTRL_DOWN_MASK));
+		mnEdit.add(mntm);
+		mntm = new JMenuItem(lang.getString("paste"), 'p');
+		mntm.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_V, InputEvent.CTRL_DOWN_MASK));
+		mnEdit.add(mntm);
+		menuBar.add(mnEdit);
+		
+		JMenu mnSearch = new JMenu(lang.getString("search"));
+		mnSearch.setMnemonic('s');
+		mntm = new JMenuItem(lang.getString("find")+"...", 'f');
+		mntm.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F, InputEvent.CTRL_DOWN_MASK));
+		mnSearch.add(mntm);
+		mntm = new JMenuItem(lang.getString("replace")+"...", 'r');
+		mntm.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_H, InputEvent.CTRL_DOWN_MASK));
+		mnSearch.add(mntm);
+		mntm = new JMenuItem(lang.getString("goto")+"...", 'g');
+		mntm.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_G, InputEvent.CTRL_DOWN_MASK));
+		mnSearch.add(mntm);
+		menuBar.add(mnSearch);
 		
 		mnWindow = new JMenu(lang.getString("window"));
 		mnWindow.setMnemonic('w');
@@ -226,17 +291,7 @@ public class Main {
 		mntmLangZhS = new JMenuItem(lang.getString("lang_zh_s"));
 		mntmLangZhS.addActionListener(mntmChangeLocaleListener("zh"));
 		mntmLang.add(mntmLangZhS);
-		
-		btabPane = new BetterTabbedPane(config);
-		/* deprecated
-		tabPane = new JTabbedPane(JTabbedPane.TOP);
-		tabPane.addTab("", new BrowserPanel());
-		tabPane.addTab("", new BrowserPanel());
-		tabPane.addTab("", new BrowserPanel());
-		*/
-		mainframe.getContentPane().add(btabPane, BorderLayout.CENTER);
-		setTheme(config.getRstaTheme());
-		changeLocale(config.getLocale());
+		return menuBar;
 	}
 	
 	private ActionListener mntmChangeLocaleListener(final String locale) {
@@ -261,7 +316,7 @@ public class Main {
 	}
 	
 	private void setTheme(String themeName) {
-		BetterTabbedPane tabPane = (BetterTabbedPane)mainframe.getContentPane().getComponent(1);
+		BetterTabbedPane tabPane = (BetterTabbedPane)mainframe.getContentPane().getComponent(0);
 		for (int i = 0; i < tabPane.getTabbedPane().getTabCount()-1; i++) {
 			BrowserPanel browser = (BrowserPanel)tabPane.getTabbedPane().getComponentAt(i);
 			browser.setTheme(themeName);
@@ -294,7 +349,7 @@ public class Main {
 		mntmLangEn.setText(lang.getString("lang_en"));
 		mntmLangZhS.setText(lang.getString("lang_zh_s"));
 		
-		BetterTabbedPane tabPane = (BetterTabbedPane)mainframe.getContentPane().getComponent(1);
+		BetterTabbedPane tabPane = (BetterTabbedPane)mainframe.getContentPane().getComponent(0);
 		for (int i = 0; i < tabPane.getTabbedPane().getTabCount()-1; i++) {
 			BrowserPanel browser = (BrowserPanel)tabPane.getTabbedPane().getComponentAt(i);
 			browser.changeLocale(locale);

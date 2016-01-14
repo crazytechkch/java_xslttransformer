@@ -29,11 +29,13 @@ public class BetterTabbedPane extends JPanel {
 	JTabbedPane tabbedPane;
     Integer numTabs = 0;
     JPanel component;
+    JFrame frame;
     private AppConfig config;
  
-    public BetterTabbedPane(AppConfig config) {
+    public BetterTabbedPane(JFrame frame,AppConfig config) {
         //this.component = firstComponent;
         this.config = config;
+        this.frame = frame;
         setLayout(new BorderLayout(0, 0));
     	createGUI();
         setDisplay();
@@ -61,14 +63,14 @@ public class BetterTabbedPane extends JPanel {
 	        for (Tab tab: config.getTabs()) {
 	        	/* add first tab */
 	        	tabbedPane.add(tab.getXmlPath()!=null&&tab.getXslPath()!=null?
-	        			new BrowserPanel(config,tab.getXmlPath(),tab.getXslPath()):new BrowserPanel(config), 
+	        			new BrowserPanel(frame,config,tab.getXmlPath(),tab.getXslPath()):new BrowserPanel(frame,config), 
 	        			"Tab " + String.valueOf(count),
 	        			numTabs++);
 	        	tabbedPane.setTabComponentAt(count, new BetterTab(this));
 	        	count++;
 	        }
         } else {
-        	tabbedPane.add(new BrowserPanel(config), 
+        	tabbedPane.add(new BrowserPanel(frame,config), 
         			"Tab " + String.valueOf(count),
         			numTabs++);
         	tabbedPane.setTabComponentAt(count, new BetterTab(this));
@@ -98,7 +100,7 @@ public class BetterTabbedPane extends JPanel {
 				Unmarshaller unmarshaller = ctx.createUnmarshaller();
 				StringReader reader = new StringReader(IOUtil.readFile("config.dat"));
 				AppConfig config = (AppConfig)unmarshaller.unmarshal(reader);
-				addNewTab(new BrowserPanel(config));
+				addNewTab(new BrowserPanel(frame,config));
 			} catch (JAXBException e1) {
 				// TODO Auto-generated catch block
 				e1.printStackTrace();
@@ -160,7 +162,7 @@ public class BetterTabbedPane extends JPanel {
 			String xmlStr = IOUtil.readFile("config.dat");
 			StringReader reader = new StringReader(xmlStr);
 			AppConfig config = (AppConfig)unmarshaller.unmarshal(reader);
-			frame.add(new BetterTabbedPane(config));
+			frame.add(new BetterTabbedPane(frame,config));
 		} catch (JAXBException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

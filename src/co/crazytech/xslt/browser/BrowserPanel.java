@@ -122,11 +122,11 @@ public class BrowserPanel extends JPanel {
 		outputText = new SyntaxEditor(frame,this,lang.getString("sourcecode"),locale);
 		outputText.getRtextArea().setSyntaxEditingStyle(RSyntaxTextArea.SYNTAX_STYLE_HTML);
 		outputText.setAutocompletion(SyntaxEditor.RstaAC.AC_HTML);
-		outputText.addFocusListener(syntaxFocusListener(outputText));
+		outputText.getRtextArea().addFocusListener(syntaxFocusListener(outputText));
 		xmlText = new DragDropSyntaxEditor(frame,this,"Drop XML Here",locale);
 		xmlText.getRtextArea().setSyntaxEditingStyle(SyntaxConstants.SYNTAX_STYLE_XML);
 		xmlText.setAutocompletion(SyntaxEditor.RstaAC.AC_XML);
-		xmlText.addFocusListener(syntaxFocusListener(xmlText));
+		xmlText.getRtextArea().addFocusListener(syntaxFocusListener(xmlText));
 		GridBagConstraints gbc_xmlScrollPane = new GridBagConstraints();
 		gbc_xmlScrollPane.insets = new Insets(0, 0, 5, 0);
 		gbc_xmlScrollPane.fill = GridBagConstraints.BOTH;
@@ -137,7 +137,7 @@ public class BrowserPanel extends JPanel {
 		xslText.getRtextArea().setSyntaxEditingStyle(SyntaxConstants.SYNTAX_STYLE_XML);
 		xslText.setAutocompletion(SyntaxEditor.RstaAC.AC_XML);
 		xslText.setAutocompletion(SyntaxEditor.RstaAC.AC_HTML);
-		xslText.addFocusListener(syntaxFocusListener(xslText));
+		xslText.getRtextArea().addFocusListener(syntaxFocusListener(xslText));
 		GridBagConstraints gbc_xslScrollPane = new GridBagConstraints();
 		gbc_xslScrollPane.insets = new Insets(0, 0, 5, 0);
 		gbc_xslScrollPane.fill = GridBagConstraints.BOTH;

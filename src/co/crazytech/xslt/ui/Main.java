@@ -69,7 +69,7 @@ import java.awt.FlowLayout;
 
 public class Main {
 	private JFrame mainframe;
-	private JMenu mnFile,mnWindow;
+	private JMenu mnFile,mnWindow,mnEdit,mnSearch;
 	private JMenu mntmLang,mntmTheme;
 	private JMenuItem mntmExit,mntmLangEn, mntmLangZhS;
 	private LangMan lang;
@@ -77,6 +77,9 @@ public class Main {
 	private JTabbedPane tabPane;
 	private BetterTabbedPane btabPane;
 	private AppConfig config;
+	private JMenuItem mntmNew,mntmRefresh,mntmOpen,mntmSave,mntmSaveAs,
+		mntmUndo,mntmRedo,mntmSelectAll,mntmCut,mntmCopy,mntmPaste,
+		mntmFind,mntmReplace,mntmGoToLine;
 
 	/**
 	 * Launch the application.
@@ -203,21 +206,21 @@ public class Main {
 		JMenuBar menuBar = new JMenuBar();
 		mnFile = new JMenu(lang.getString("file"));
 		mnFile.setMnemonic('f');
-		JMenuItem mntm = new JMenuItem(lang.getString("new"), 'n');
-		mntm.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_N, InputEvent.CTRL_DOWN_MASK));
-		mnFile.add(mntm);
-		mntm = new JMenuItem(lang.getString("refresh"), 'r');
-		mntm.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F5, 0));
-		mnFile.add(mntm);
-		mntm = new JMenuItem(lang.getString("open"), 'o');
-		mntm.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_O, InputEvent.CTRL_DOWN_MASK));
-		mnFile.add(mntm);
-		mntm = new JMenuItem(lang.getString("save"), 's');
-		mntm.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S, InputEvent.CTRL_DOWN_MASK));
-		mnFile.add(mntm);
-		mntm = new JMenuItem(lang.getString("saveas"), 's');
-		mntm.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F12, InputEvent.CTRL_DOWN_MASK));
-		mnFile.add(mntm);
+		mntmNew = new JMenuItem(lang.getString("new"), 'n');
+		mntmNew.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_N, InputEvent.CTRL_DOWN_MASK));
+		mnFile.add(mntmNew);
+		mntmRefresh = new JMenuItem(lang.getString("refresh"), 'r');
+		mntmRefresh.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F5, 0));
+		mnFile.add(mntmRefresh);
+		mntmOpen = new JMenuItem(lang.getString("open"), 'o');
+		mntmOpen.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_O, InputEvent.CTRL_DOWN_MASK));
+		mnFile.add(mntmOpen);
+		mntmSave = new JMenuItem(lang.getString("save"), 's');
+		mntmSave.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S, InputEvent.CTRL_DOWN_MASK));
+		mnFile.add(mntmSave);
+		mntmSaveAs = new JMenuItem(lang.getString("saveas"), 's');
+		mntmSaveAs.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F12, InputEvent.CTRL_DOWN_MASK));
+		mnFile.add(mntmSaveAs);
 		mntmExit = new JMenuItem(lang.getString("exit"));
 		mntmExit.setMnemonic('E');
 		mntmExit.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F4, InputEvent.ALT_DOWN_MASK));
@@ -231,39 +234,39 @@ public class Main {
 		mnFile.add(mntmExit);
 		menuBar.add(mnFile);
 		
-		JMenu mnEdit = new JMenu(lang.getString("edit"));
+		mnEdit = new JMenu(lang.getString("edit"));
 		mnEdit.setMnemonic('e');
-		mntm = new JMenuItem(lang.getString("undo"), 'u');
-		mntm.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Z, InputEvent.CTRL_DOWN_MASK));
-		mnEdit.add(mntm);
-		mntm = new JMenuItem(lang.getString("redo"), 'r');
-		mntm.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Y, InputEvent.CTRL_DOWN_MASK));
-		mnEdit.add(mntm);
-		mntm = new JMenuItem(lang.getString("selectall"), 's');
-		mntm.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_A, InputEvent.CTRL_DOWN_MASK));
-		mnEdit.add(mntm);
-		mntm = new JMenuItem(lang.getString("cut"), 'c');
-		mntm.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_X, InputEvent.CTRL_DOWN_MASK));
-		mnEdit.add(mntm);
-		mntm = new JMenuItem(lang.getString("copy"), 'c');
-		mntm.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_C, InputEvent.CTRL_DOWN_MASK));
-		mnEdit.add(mntm);
-		mntm = new JMenuItem(lang.getString("paste"), 'p');
-		mntm.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_V, InputEvent.CTRL_DOWN_MASK));
-		mnEdit.add(mntm);
+		mntmUndo = new JMenuItem(lang.getString("undo"), 'u');
+		mntmUndo.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Z, InputEvent.CTRL_DOWN_MASK));
+		mnEdit.add(mntmUndo);
+		mntmRedo = new JMenuItem(lang.getString("redo"), 'r');
+		mntmRedo.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Y, InputEvent.CTRL_DOWN_MASK));
+		mnEdit.add(mntmRedo);
+		mntmSelectAll = new JMenuItem(lang.getString("selectall"), 's');
+		mntmSelectAll.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_A, InputEvent.CTRL_DOWN_MASK));
+		mnEdit.add(mntmSelectAll);
+		mntmCut = new JMenuItem(lang.getString("cut"), 'c');
+		mntmCut.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_X, InputEvent.CTRL_DOWN_MASK));
+		mnEdit.add(mntmCut);
+		mntmCopy = new JMenuItem(lang.getString("copy"), 'c');
+		mntmCopy.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_C, InputEvent.CTRL_DOWN_MASK));
+		mnEdit.add(mntmCopy);
+		mntmPaste = new JMenuItem(lang.getString("paste"), 'p');
+		mntmPaste.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_V, InputEvent.CTRL_DOWN_MASK));
+		mnEdit.add(mntmPaste);
 		menuBar.add(mnEdit);
 		
-		JMenu mnSearch = new JMenu(lang.getString("search"));
+		mnSearch = new JMenu(lang.getString("search"));
 		mnSearch.setMnemonic('s');
-		mntm = new JMenuItem(lang.getString("find")+"...", 'f');
-		mntm.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F, InputEvent.CTRL_DOWN_MASK));
-		mnSearch.add(mntm);
-		mntm = new JMenuItem(lang.getString("replace")+"...", 'r');
-		mntm.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_H, InputEvent.CTRL_DOWN_MASK));
-		mnSearch.add(mntm);
-		mntm = new JMenuItem(lang.getString("goto")+"...", 'g');
-		mntm.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_G, InputEvent.CTRL_DOWN_MASK));
-		mnSearch.add(mntm);
+		mntmFind = new JMenuItem(lang.getString("find")+"...", 'f');
+		mntmFind.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F, InputEvent.CTRL_DOWN_MASK));
+		mnSearch.add(mntmFind);
+		mntmReplace = new JMenuItem(lang.getString("replace")+"...", 'r');
+		mntmReplace.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_H, InputEvent.CTRL_DOWN_MASK));
+		mnSearch.add(mntmReplace);
+		mntmGoToLine = new JMenuItem(lang.getString("goto")+"...", 'g');
+		mntmGoToLine.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_G, InputEvent.CTRL_DOWN_MASK));
+		mnSearch.add(mntmGoToLine);
 		menuBar.add(mnSearch);
 		
 		mnWindow = new JMenu(lang.getString("window"));
@@ -348,7 +351,22 @@ public class Main {
 		mntmLang.setText(lang.getString("language"));
 		mntmLangEn.setText(lang.getString("lang_en"));
 		mntmLangZhS.setText(lang.getString("lang_zh_s"));
-		
+		mntmNew.setText(lang.getString("new"));
+		mntmRefresh.setText(lang.getString("refresh"));
+		mntmOpen.setText(lang.getString("open"));
+		mntmSave.setText(lang.getString("save"));
+		mntmSaveAs.setText(lang.getString("saveas"));
+		mnEdit.setText(lang.getString("edit"));
+		mntmUndo.setText(lang.getString("undo"));
+		mntmRedo.setText(lang.getString("redo"));
+		mntmSelectAll.setText(lang.getString("selectall"));
+		mntmCut.setText(lang.getString("cut"));
+		mntmCopy.setText(lang.getString("copy"));
+		mntmPaste.setText(lang.getString("paste"));
+		mnSearch.setText(lang.getString("search"));
+		mntmFind.setText(lang.getString("find")+"...");
+		mntmReplace.setText(lang.getString("replace")+"...");
+		mntmGoToLine.setText(lang.getString("file")+"...");
 		BetterTabbedPane tabPane = (BetterTabbedPane)mainframe.getContentPane().getComponent(0);
 		for (int i = 0; i < tabPane.getTabbedPane().getTabCount()-1; i++) {
 			BrowserPanel browser = (BrowserPanel)tabPane.getTabbedPane().getComponentAt(i);
@@ -372,7 +390,7 @@ public class Main {
 		switch (optionDialog(mainframe, lang.getString("confirm_exit"), lang.getString("exit"))) {
 		case 0:
 			List<Tab> tabs = new ArrayList<Tab>();
-			BetterTabbedPane tabPane = (BetterTabbedPane)mainframe.getContentPane().getComponent(1);
+			BetterTabbedPane tabPane = (BetterTabbedPane)mainframe.getContentPane().getComponent(0);
 			tabPane.revalidate();
 			for (int i = 0; i < tabPane.getTabbedPane().getTabCount()-1; i++) {
 				BrowserPanel browser = (BrowserPanel)tabPane.getTabbedPane().getComponentAt(i);

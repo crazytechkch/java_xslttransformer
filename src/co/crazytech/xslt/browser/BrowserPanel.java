@@ -93,6 +93,7 @@ public class BrowserPanel extends JPanel {
 	private AppConfig config;
 	private JMenuItem mntmNew,mntmRefresh,mntmOpen,mntmSave,mntmSaveAs,
 		mntmUndo,mntmRedo,mntmSelectAll,mntmCut,mntmCopy,mntmPaste,
+		mntmRun,
 		mntmFind,mntmReplace,mntmGoToLine;
 	private SwingController pdfCtrl;
 	private List<String> tempFileNames;
@@ -207,8 +208,8 @@ public class BrowserPanel extends JPanel {
 		outputPane.setViewportView(outputText);
 		_panel_1.add(tabPane);
 		splitPane.setLeftComponent(_panel_1);
-		initMenuItems();
 		add(splitPane,BorderLayout.CENTER);
+		initMenuItems();
 		setTheme(config.getRstaTheme());
 		changeLocale(config.getLocale());
 		
@@ -230,6 +231,7 @@ public class BrowserPanel extends JPanel {
 		mntmFind = menubar.getMenu(2).getItem(0);
 		mntmReplace = menubar.getMenu(2).getItem(1);
 		mntmGoToLine = menubar.getMenu(2).getItem(2);
+		mntmRun = menubar.getMenu(3).getItem(0);
 	}
 	
 	
@@ -304,9 +306,6 @@ public class BrowserPanel extends JPanel {
 							// TODO Auto-generated catch block
 							showErrorDialog("SAXException", e.getMessage());
 							e.printStackTrace();
-						} catch (Exception e) {
-							showErrorDialog("Exception", 
-									lang.getString("error_msg_general")+"\n"+e.getMessage());
 						}
 						
 					}
@@ -402,5 +401,9 @@ public class BrowserPanel extends JPanel {
 
 	public DragDropSyntaxEditor getXslText() {
 		return xslText;
+	}
+
+	public JButton getBtnTransform() {
+		return btnTransform;
 	}
 }

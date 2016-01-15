@@ -4,10 +4,13 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.GridLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.io.IOException;
 import java.io.StringReader;
 
 import javax.swing.JFrame;
+import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
@@ -101,6 +104,19 @@ public class BetterTabbedPane extends JPanel {
 				StringReader reader = new StringReader(IOUtil.readFile("config.dat"));
 				AppConfig config = (AppConfig)unmarshaller.unmarshal(reader);
 				addNewTab(new BrowserPanel(frame,config));
+				JTabbedPane tabpane = (JTabbedPane)e.getSource();
+				BrowserPanel browserPanel = (BrowserPanel)tabpane.getComponentAt(tabpane.getSelectedIndex());
+				JMenuItem mntm = frame.getJMenuBar().getMenu(3).getItem(0);
+				for (ActionListener action : mntm.getActionListeners()) {
+					mntm.removeActionListener(action);
+				}
+				mntm.addActionListener(new ActionListener() {
+					
+					@Override
+					public void actionPerformed(ActionEvent e) {
+						browserPanel.getBtnTransform().doClick();
+					}
+				});
 			} catch (JAXBException e1) {
 				// TODO Auto-generated catch block
 				e1.printStackTrace();

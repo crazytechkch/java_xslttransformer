@@ -69,7 +69,7 @@ import java.awt.FlowLayout;
 
 public class Main {
 	private JFrame mainframe;
-	private JMenu mnFile,mnWindow,mnEdit,mnSearch;
+	private JMenu mnFile,mnWindow,mnEdit,mnSearch,mnRun;
 	private JMenu mntmLang,mntmTheme;
 	private JMenuItem mntmExit,mntmLangEn, mntmLangZhS;
 	private LangMan lang;
@@ -79,6 +79,7 @@ public class Main {
 	private AppConfig config;
 	private JMenuItem mntmNew,mntmRefresh,mntmOpen,mntmSave,mntmSaveAs,
 		mntmUndo,mntmRedo,mntmSelectAll,mntmCut,mntmCopy,mntmPaste,
+		mntmRun,
 		mntmFind,mntmReplace,mntmGoToLine;
 
 	/**
@@ -268,6 +269,12 @@ public class Main {
 		mntmGoToLine.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_G, InputEvent.CTRL_DOWN_MASK));
 		mnSearch.add(mntmGoToLine);
 		menuBar.add(mnSearch);
+		
+		mnRun = new JMenu(lang.getString("run"));
+		mntmRun = new JMenuItem(lang.getString("run"),'r');
+		mntmRun.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F5,InputEvent.CTRL_DOWN_MASK));
+		mnRun.add(mntmRun);
+		menuBar.add(mnRun);
 		
 		mnWindow = new JMenu(lang.getString("window"));
 		mnWindow.setMnemonic('w');

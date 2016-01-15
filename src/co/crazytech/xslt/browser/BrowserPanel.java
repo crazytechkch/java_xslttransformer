@@ -35,6 +35,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
 import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
+import javax.swing.JTextArea;
 import javax.swing.KeyStroke;
 import javax.swing.text.DefaultEditorKit;
 import javax.xml.bind.JAXBContext;
@@ -298,11 +299,14 @@ public class BrowserPanel extends JPanel {
 							// TODO Auto-generated catch block
 							String errorMsg = myLang.getString("error")+"\n"+e.getLocalizedMessage();
 							outputText.setText(errorMsg);
-							JOptionPane.showMessageDialog(frame, "TransformerException:\n"+e.getMessage());
+							showErrorDialog("Transformer Exception", errorMsg);
 						} catch (SAXException e) {
 							// TODO Auto-generated catch block
-							JOptionPane.showMessageDialog(frame, "SAXException:\n"+e.getMessage());
+							showErrorDialog("SAXException", e.getMessage());
 							e.printStackTrace();
+						} catch (Exception e) {
+							showErrorDialog("Exception", 
+									lang.getString("error_msg_general")+"\n"+e.getMessage());
 						}
 						
 					}
@@ -310,6 +314,16 @@ public class BrowserPanel extends JPanel {
 				runnable.run();
 			}
 		};
+	}
+	
+	private void showErrorDialog(String title, String message){
+		SyntaxEditor errorText = new SyntaxEditor(frame, getParent(), "", locale);
+		errorText.setText(message);
+		errorText.getRtextArea().setColumns(60);
+		errorText.getRtextArea().setLineWrap(true);
+		errorText.getRtextArea().setWrapStyleWord(true);
+		JOptionPane.showMessageDialog(frame, errorText,title,JOptionPane.PLAIN_MESSAGE);
+		
 	}
 	
 	private void transformFoPdf(String trOutput) throws IOException, SAXException, TransformerException{

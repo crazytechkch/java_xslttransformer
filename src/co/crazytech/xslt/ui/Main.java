@@ -186,7 +186,7 @@ public class Main {
 			// TODO Auto-generated method stub
 		}
 		});
-		JMenuBar menuBar = new JMenuBar();
+		
 		mainframe.setJMenuBar(menuBar());
 		
 		

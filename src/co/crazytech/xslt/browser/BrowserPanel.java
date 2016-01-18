@@ -304,7 +304,10 @@ public class BrowserPanel extends JPanel {
 							showErrorDialog("Transformer Exception", errorMsg);
 						} catch (SAXException e) {
 							// TODO Auto-generated catch block
-							showErrorDialog("SAXException", e.getMessage());
+							showErrorDialog("SAXException", e.getLocalizedMessage());
+							e.printStackTrace();
+						} catch (NullPointerException e) {
+							showErrorDialog("NullPointerException", e.getLocalizedMessage());
 							e.printStackTrace();
 						}
 						

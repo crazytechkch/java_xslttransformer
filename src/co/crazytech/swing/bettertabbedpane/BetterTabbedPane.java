@@ -62,13 +62,14 @@ public class BetterTabbedPane extends JPanel {
         tabbedPane = new JTabbedPane(JTabbedPane.TOP,
                 JTabbedPane.SCROLL_TAB_LAYOUT);
         int count = 0;
-        if(config.getTabs()!=null){
+        if(config.getTabs()!=null&&config.getTabs().size()>0){
 	        for (Tab tab: config.getTabs()) {
 	        	/* add first tab */
 	        	tabbedPane.add(tab.getXmlPath()!=null&&tab.getXslPath()!=null?
 	        			new BrowserPanel(frame,config,tab.getXmlPath(),tab.getXslPath()):new BrowserPanel(frame,config), 
 	        			"Tab " + String.valueOf(count),
 	        			numTabs++);
+	        	
 	        	tabbedPane.setTabComponentAt(count, new BetterTab(this));
 	        	count++;
 	        }
@@ -77,13 +78,14 @@ public class BetterTabbedPane extends JPanel {
         			"Tab " + String.valueOf(count),
         			numTabs++);
         	tabbedPane.setTabComponentAt(count, new BetterTab(this));
+        	count++;
         }
         
  
         /* add tab to add new tab when click */
         tabbedPane.add(new JPanel(), "+", numTabs++);
- 
         tabbedPane.addChangeListener(changeListener);
+        initRunMenuItem(tabbedPane);
     }
  
     /** create JPanel contain a JLabel */
@@ -104,19 +106,7 @@ public class BetterTabbedPane extends JPanel {
 				StringReader reader = new StringReader(IOUtil.readFile("config.dat"));
 				AppConfig config = (AppConfig)unmarshaller.unmarshal(reader);
 				addNewTab(new BrowserPanel(frame,config));
-				JTabbedPane tabpane = (JTabbedPane)e.getSource();
-				BrowserPanel browserPanel = (BrowserPanel)tabpane.getComponentAt(tabpane.getSelectedIndex());
-				JMenuItem mntm = frame.getJMenuBar().getMenu(3).getItem(0);
-				for (ActionListener action : mntm.getActionListeners()) {
-					mntm.removeActionListener(action);
-				}
-				mntm.addActionListener(new ActionListener() {
-					
-					@Override
-					public void actionPerformed(ActionEvent e) {
-						browserPanel.getBtnTransform().doClick();
-					}
-				});
+				initRunMenuItem((JTabbedPane)e.getSource());
 			} catch (JAXBException e1) {
 				// TODO Auto-generated catch block
 				e1.printStackTrace();
@@ -126,6 +116,21 @@ public class BetterTabbedPane extends JPanel {
 			}
 		}
 	};
+	
+	private void initRunMenuItem(JTabbedPane tabpane){
+		BrowserPanel browserPanel = (BrowserPanel)tabpane.getComponentAt(tabpane.getSelectedIndex());
+		JMenuItem mntm = frame.getJMenuBar().getMenu(3).getItem(0);
+		for (ActionListener action : mntm.getActionListeners()) {
+			mntm.removeActionListener(action);
+		}
+		mntm.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				browserPanel.getBtnTransform().doClick();
+			}
+		});
+	}
  
     private static JTextArea createTextArea(int row, int col) {
         JTextArea ta = new JTextArea(row, col);
